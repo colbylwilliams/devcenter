@@ -194,7 +194,7 @@ resource project 'Microsoft.Fidalgo/projects@2022-03-01-privatepreview' = if (!e
 
   #disable-next-line BCP081
   resource devBoxPool 'pools@2022-03-01-privatepreview' = {
-    name: '${projectName}-main'
+    name: '${projectName}-Win11'
     location: location
     properties: {
       devBoxDefinitionName: 'Win11'

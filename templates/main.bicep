@@ -7,7 +7,7 @@ targetScope = 'subscription'
 param name string
 
 @description('Location of the thing')
-param locaiton string
+param location string
 
 @description('Name of the project.')
 param projectName string = ''
@@ -67,12 +67,12 @@ param tags object = {}
 
 resource group_dc 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: '${name}-DevCenter'
-  location: locaiton
+  location: location
 }
 
 resource group_net 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: '${name}-Network'
-  location: locaiton
+  location: location
 }
 
 module network 'network.bicep' = {

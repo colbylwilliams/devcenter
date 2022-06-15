@@ -10,8 +10,8 @@ param location string = resourceGroup().location
 @description('Name of the project.')
 param projectName string = ''
 
-@description('[Dev Box] The principal id of the user to assign the role of Project Admin to.  This is required in order to create a Dev Box.')
-param userId string = ''
+@description('[Dev Box] The principal id of users to assign the role of Project Admin to.  This is required in order to create a Dev Box.')
+param projectAdmins array = []
 
 @description('[Dev Box] Resource ID of an existing Azure Compute Gallery to use for the Dev Box Definitions.')
 param computeGalleryId string = ''
@@ -50,7 +50,6 @@ var environments = empty(environmentTypeConfigs) ? json('{}') : json(environment
 
 var vaultName = 'DC-${take(replace(name, ' ', '-'), 12)}-${take(uniqueString(resourceGroup().id), 8)}'
 
-var projadminAssignmentIdName = guid('projadmin${resourceGroup().id}${name}${userId}${projectName}')
 var projadminRoleDefinitionId = '/providers/Microsoft.Authorization/roleDefinitions/331c37c6-af14-46d9-b9f4-e1909e1b95a0'
 
 var identityName = empty(identityId) ? '' : last(split(identityId, '/'))
@@ -209,15 +208,15 @@ resource project 'Microsoft.Fidalgo/projects@2022-03-01-privatepreview' = if (!e
   }
 }
 
-resource projectAdminAssignmentId 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = if (!empty(projectName) && !empty(userId)) {
-  name: projadminAssignmentIdName
+resource projectAdminAssignmentIds 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = [for admin in projectAdmins: if (!empty(projectName) && !empty(projectAdmins)) {
+  name: guid('projadmin${resourceGroup().id}${name}${admin}${projectName}')
   properties: {
     roleDefinitionId: projadminRoleDefinitionId
-    principalId: userId
+    principalId: admin
     principalType: 'User'
   }
   scope: project
-}
+}]
 
 #disable-next-line BCP081
 resource mappings 'Microsoft.Fidalgo/devcenters/mappings@2022-03-01-privatepreview' = [for (name, i) in environmentTypeNames: if (!empty(projectName) && configuredEnvironmentTypes) {

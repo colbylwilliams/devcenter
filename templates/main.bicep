@@ -12,8 +12,8 @@ param location string
 @description('Name of the project.')
 param projectName string = ''
 
-@description('[Dev Box] The principal id of the user to assign the role of Project Admin to.  This is required in order to create a Dev Box.')
-param userId string = ''
+@description('[Dev Box] The principal id of users to assign the role of Project Admin to.  This is required in order to create a Dev Box.')
+param projectAdmins array = []
 
 @description('[Dev Box] Resource ID of an existing Azure Compute Gallery to use for the Dev Box Definitions.')
 param computeGalleryId string = ''
@@ -111,6 +111,6 @@ module devcenter 'devcenter.bicep' = {
     computeGalleryId: computeGalleryId
     computeGalleryImages: computeGalleryImages
     tags: tags
-    userId: userId
+    projectAdmins: projectAdmins
   }
 }

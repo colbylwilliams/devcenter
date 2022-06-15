@@ -152,6 +152,17 @@ resource networkConnection 'Microsoft.Fidalgo/devcenters/attachednetworks@2022-0
 }
 
 #disable-next-line BCP081
+resource gallery 'Microsoft.Fidalgo/devcenters/galleries@2022-03-01-privatepreview' = if (!empty(computeGalleryId)) {
+  name: '${devCenter.name}/${computeGalleryName}'
+  properties: {
+    galleryResourceId: computeGalleryId
+  }
+  dependsOn: [
+    galleryReader
+  ]
+}
+
+#disable-next-line BCP081
 resource devBoxDefs 'Microsoft.Fidalgo/devcenters/devboxdefinitions@2022-03-01-privatepreview' = {
   name: '${devCenter.name}/Win11'
   location: location

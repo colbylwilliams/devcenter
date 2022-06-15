@@ -54,7 +54,7 @@ var projadminAssignmentIdName = guid('projadmin${resourceGroup().id}${name}${use
 var projadminRoleDefinitionId = '/providers/Microsoft.Authorization/roleDefinitions/331c37c6-af14-46d9-b9f4-e1909e1b95a0'
 
 var identityName = empty(identityId) ? '' : last(split(identityId, '/'))
-var identityGroup = empty(identityId) ? '' : first(split(last(split(identityId, '/resourceGroups/')), '/'))
+var identityGroup = empty(identityId) ? '' : first(split(last(split(replace(identityId, 'resourceGroups', 'resourcegroups'), '/resourcegroups/')), '/'))
 
 var networkConnectionName = last(split(networkConnectionResourceId, '/'))
 

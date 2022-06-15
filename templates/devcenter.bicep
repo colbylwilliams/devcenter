@@ -114,7 +114,7 @@ resource devCenter 'Microsoft.Fidalgo/devcenters@2022-03-01-privatepreview' = {
     name: 'SampleCatalog'
     properties: {
       gitHub: {
-        uri: 'https://github.com/Azure/Project-Fidalgo-PrivatePreview.git'
+        uri: 'https://github.com/Azure/Deployment-Environments-PrivatePreview.git'
         branch: 'main'
         secretIdentifier: vault.outputs.patUrl
         path: '/Catalog'

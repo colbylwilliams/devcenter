@@ -86,7 +86,7 @@ module vault 'keyvault.bicep' = if (!empty(pat)) {
   }
 }
 
-module subownerAssignmentIds 'subscriptionsOwner.bicep' = if (!empty(subscriptions)) {
+module subownerAssignmentIds 'subscriptionsOwner.bicep' = if (empty(identityId) && !empty(subscriptions)) {
   name: 'subscriptionsOwner'
   params: {
     principalId: empty(identityId) ? identity_n.properties.principalId : identity_e.properties.principalId
@@ -105,6 +105,9 @@ resource devCenter 'Microsoft.Fidalgo/devcenters@2022-03-01-privatepreview' = {
     }
   }
   tags: tags
+  dependsOn: [
+    subownerAssignmentIds
+  ]
 
   #disable-next-line BCP081
   resource catalog 'catalogs@2022-03-01-privatepreview' = if (configureSampleCatalog) {

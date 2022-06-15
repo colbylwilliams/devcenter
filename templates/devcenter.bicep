@@ -157,7 +157,7 @@ resource devBoxDefs 'Microsoft.Fidalgo/devcenters/devboxdefinitions@2022-03-01-p
   location: location
   properties: {
     imageReference: {
-      id: '${resourceGroup().id}/providers/Microsoft.Fidalgo/devcenters/${name}/galleries/Default/images/MicrosoftWindowsDesktop_windows-ent-cpc_win11-21h2-ent-cpc-m365'
+      id: '${devCenter.id}/galleries/Default/images/MicrosoftWindowsDesktop_windows-ent-cpc_win11-21h2-ent-cpc-m365'
     }
     sku: {
       name: 'PrivatePreview'

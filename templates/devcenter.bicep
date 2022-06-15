@@ -13,6 +13,12 @@ param projectName string = ''
 @description('[Dev Box] The principal id of the user to assign the role of Project Admin to.  This is required in order to create a Dev Box.')
 param userId string = ''
 
+@description('[Dev Box] Resource ID of an existing Azure Compute Gallery to use for the Dev Box Definitions.')
+param computeGalleryId string = ''
+
+@description('[Dev Box] Names of images in the Azure Compute Gallery provided in the computeGalleryId param to create Dev Box Definitions.')
+param computeGalleryImages array = []
+
 @secure()
 @description('[Environments] Personal Access Token from GitHub with the repo scope')
 param pat string = ''
@@ -54,6 +60,9 @@ var networkConnectionName = last(split(networkConnectionResourceId, '/'))
 
 var configuredEnvironmentTypes = !empty(environmentTypeNames) && !empty(environmentTypeConfigs)
 var configureSampleCatalog = sampleCatalog && !empty(pat)
+
+var computeGalleryName = empty(computeGalleryId) ? '' : last(split(computeGalleryId, '/'))
+var computeGalleryGroup = empty(computeGalleryId) ? '' : first(split(last(split(replace(computeGalleryId, 'resourceGroups', 'resourcegroups'), '/resourcegroups/')), '/'))
 
 resource identity_n 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = if (empty(identityId)) {
   name: name

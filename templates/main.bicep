@@ -15,6 +15,12 @@ param projectName string = ''
 @description('[Dev Box] The principal id of the user to assign the role of Project Admin to.  This is required in order to create a Dev Box.')
 param userId string = ''
 
+@description('[Dev Box] Resource ID of an existing Azure Compute Gallery to use for the Dev Box Definitions.')
+param computeGalleryId string = ''
+
+@description('[Dev Box] Names of images in the Azure Compute Gallery provided in the computeGalleryId param to create Dev Box Definitions.')
+param computeGalleryImages array = []
+
 @description('Resource ID of an Identity to assign to the dev center and give owner role to subscriptions passed in the subscriptions paramater. If none is provided a identity will be created')
 param identityId string = ''
 
@@ -102,6 +108,8 @@ module devcenter 'devcenter.bicep' = {
     environmentTypeConfigs: environmentTypeConfigs
     subscriptions: subscriptions
     networkConnectionResourceId: network.outputs.networkSettingsId
+    computeGalleryId: computeGalleryId
+    computeGalleryImages: computeGalleryImages
     tags: tags
     userId: userId
   }

@@ -151,6 +151,14 @@ resource networkConnection 'Microsoft.Fidalgo/devcenters/attachednetworks@2022-0
   }
 }
 
+module galleryReader 'galleryReader.bicep' = if (!empty(computeGalleryId)) {
+  name: 'galleryReader'
+  scope: resourceGroup(computeGalleryGroup)
+  params: {
+    computeGalleryId: computeGalleryId
+  }
+}
+
 #disable-next-line BCP081
 resource gallery 'Microsoft.Fidalgo/devcenters/galleries@2022-03-01-privatepreview' = if (!empty(computeGalleryId)) {
   name: '${devCenter.name}/${computeGalleryName}'

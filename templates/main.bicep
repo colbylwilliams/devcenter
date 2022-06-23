@@ -37,36 +37,24 @@ param sampleCatalog bool = true
 @description('[Environments] If true create a Sandbox environment type')
 param sandbox bool = false
 
-@description('[Environments] An array of Environment Type names.  If provided, the environmentTypeConfigs paramaeter must also be provided with matching names.')
-param environmentTypeNames array = []
+@description('[Environments] An object with property keys containing the Environment Type name and values containing Subscription and Description properties. See bicep file for example.')
+param environmentTypeConfigs object = {}
 
 // EXAMPLE:
-// param environmentTypeNames array = [
-//   'Dev'
-//   'Test'
-//   'Prod'
-// ]
-
-@description('[Environments] An string with a json object of Environment Type configs.  If provided, the environmentTypeNames parameter must also be provided with matching names.')
-param environmentTypeConfigs string = ''
-
-// EXAMPLE:
-// param environmentTypeConfigs string = '''
-// {
-//   "Dev": {
-//     "Subscription": "00000000-0000-0000-0000-000000000000",
-//     "Description": "Development environments",
-//   },
-//   "Test": {
-//     "Subscription": "00000000-0000-0000-0000-000000000000",
-//     "Description": "Testing environments",
-//   },
-//   "Prod": {
-//     "Subscription": "00000000-0000-0000-0000-000000000000",
-//     "Description": "Production environments",
+// param environmentTypeConfigs object = {
+//   Dev: {
+//     Subscription: '00000000-0000-0000-0000-000000000000'
+//     Description: 'Development environments'
+//   }
+//   Test: {
+//     Subscription: '00000000-0000-0000-0000-000000000000'
+//     Description: 'Testing environments'
+//   }
+//   Prod: {
+//     Subscription: '00000000-0000-0000-0000-000000000000'
+//     Description: 'Production environments'
 //   }
 // }
-// '''
 
 @description('Tags to apply to the resources')
 param tags object = {}
@@ -97,14 +85,13 @@ module devcenter 'devcenter.bicep' = {
   scope: group_dc
   name: 'devcenter'
   params: {
-    name: '${name}DC'
+    name: name
     location: group_dc.location
     identityId: identityId
     pat: pat
     projectName: projectName
     sampleCatalog: sampleCatalog
     sandbox: sandbox
-    environmentTypeNames: environmentTypeNames
     environmentTypeConfigs: environmentTypeConfigs
     subscriptions: subscriptions
     networkConnectionResourceId: network.outputs.networkSettingsId

@@ -37,18 +37,13 @@ param networkConnectionResourceId string
 @description('Resource ID of an Identity to assign to the dev center and give owner role to subscriptions passed in the subscriptions paramater. If none is provided a identity will be created')
 param identityId string = ''
 
-@description('[Environments] An array of Environment Type names.  If provided, the environmentTypeConfigs paramaeter must also be provided with matching names. See main.bicep for examples.')
-param environmentTypeNames array = []
-
-@description('[Environments] An string with a json object of Environment Type configs.  If provided, the environmentTypeNames parameter must also be provided with matching names. See main.bicep for examples.')
-param environmentTypeConfigs string = ''
+@description('[Environments] An object with property keys containing the Environment Type name and values containing Subscription and Description properties. See main.bicep for examples')
+param environmentTypeConfigs object = {}
 
 @description('Tags to apply to the resources')
 param tags object = {}
 
-var environments = empty(environmentTypeConfigs) ? json('{}') : json(environmentTypeConfigs)
-
-var vaultName = 'DC-${take(replace(name, ' ', '-'), 12)}-${take(uniqueString(resourceGroup().id), 8)}'
+var vaultName = '${take(replace(name, ' ', '-'), 14)}-${take(uniqueString(resourceGroup().id), 8)}'
 
 var projadminRoleDefinitionId = '/providers/Microsoft.Authorization/roleDefinitions/331c37c6-af14-46d9-b9f4-e1909e1b95a0'
 
@@ -57,7 +52,6 @@ var identityGroup = empty(identityId) ? '' : first(split(last(split(replace(iden
 
 var networkConnectionName = last(split(networkConnectionResourceId, '/'))
 
-var configuredEnvironmentTypes = !empty(environmentTypeNames) && !empty(environmentTypeConfigs)
 var configureSampleCatalog = sampleCatalog && !empty(pat)
 
 var computeGalleryName = empty(computeGalleryId) ? '' : last(split(computeGalleryId, '/'))
@@ -133,10 +127,10 @@ resource devCenter 'Microsoft.Fidalgo/devcenters@2022-03-01-privatepreview' = {
   }
 
   #disable-next-line BCP081
-  resource environmentTypes 'environmentTypes@2022-03-01-privatepreview' = [for (name, i) in environmentTypeNames: if (configuredEnvironmentTypes) {
-    name: name
+  resource environmentTypes 'environmentTypes@2022-03-01-privatepreview' = [for item in items(environmentTypeConfigs): {
+    name: item.key
     properties: {
-      description: environments[name].Description
+      description: item.value.Description
     }
     tags: tags
   }]
@@ -170,6 +164,20 @@ resource gallery 'Microsoft.Fidalgo/devcenters/galleries@2022-03-01-privateprevi
 }
 
 #disable-next-line BCP081
+resource devBoxDefsCustom 'Microsoft.Fidalgo/devcenters/devboxdefinitions@2022-03-01-privatepreview' = [for image in computeGalleryImages: if (!empty(computeGalleryId) && !empty(computeGalleryImages)) {
+  name: '${devCenter.name}/${image}'
+  location: location
+  properties: {
+    imageReference: {
+      id: '${gallery.id}/images/${image}'
+    }
+    sku: {
+      name: 'PrivatePreview'
+    }
+  }
+}]
+
+#disable-next-line BCP081
 resource devBoxDefs 'Microsoft.Fidalgo/devcenters/devboxdefinitions@2022-03-01-privatepreview' = {
   name: '${devCenter.name}/Win11'
   location: location
@@ -194,7 +202,7 @@ resource project 'Microsoft.Fidalgo/projects@2022-03-01-privatepreview' = if (!e
 
   #disable-next-line BCP081
   resource devBoxPool 'pools@2022-03-01-privatepreview' = {
-    name: '${projectName}-Win11'
+    name: 'Win11Box'
     location: location
     properties: {
       devBoxDefinitionName: 'Win11'
@@ -219,11 +227,14 @@ resource projectAdminAssignmentIds 'Microsoft.Authorization/roleAssignments@2020
 }]
 
 #disable-next-line BCP081
-resource mappings 'Microsoft.Fidalgo/devcenters/mappings@2022-03-01-privatepreview' = [for (name, i) in environmentTypeNames: if (!empty(projectName) && configuredEnvironmentTypes) {
-  name: '${devCenter.name}/${name}'
+resource mappings 'Microsoft.Fidalgo/devcenters/mappings@2022-03-01-privatepreview' = [for item in items(environmentTypeConfigs): if (!empty(projectName)) {
+  name: '${devCenter.name}/${item.key}'
   properties: {
-    environmentType: name
-    mappedSubscriptionId: '/subscriptions/${environments[name].Subscription}'
+    environmentType: item.key
+    mappedSubscriptionId: '/subscriptions/${item.value.Subscription}'
     projectId: project.id
   }
 }]
+
+output galleryId string = gallery.id
+output galleryRef string = '${gallery.id}/images/VSCodeBox/latest'
